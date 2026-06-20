@@ -11,7 +11,7 @@
 
     <groupId>ru.privalov</groupId>
     <artifactId>messaging-service</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>local-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>messaging-service</name>
