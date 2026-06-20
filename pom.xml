@@ -18,7 +18,7 @@
     <description>messaging-service</description>
 
     <modules>
-        <module>ms-1</module>
+        <module>user-service</module>
         <module>ms-2</module>
         <module>ms-3</module>
     </modules>

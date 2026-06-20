@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:user-service-test;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+jwt:
+  secret: test-secret-key-for-user-service-jwt-256-bit
+  expiration: 1h

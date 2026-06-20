@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: user-service
+  datasource:
+    url: ${USER_SERVICE_DB_URL:jdbc:postgresql://localhost:5432/privalov-db}
+    username: ${USER_SERVICE_DB_USERNAME:admin}
+    password: ${USER_SERVICE_DB_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+server:
+  port: 8081
+
+jwt:
+  secret: ${USER_SERVICE_JWT_SECRET:local-dev-secret-key-for-user-service-jwt-256-bit}
+  expiration: ${USER_SERVICE_JWT_EXPIRATION:1h}

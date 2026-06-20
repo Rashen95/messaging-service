@@ -1,12 +1,12 @@
-package ru.privalov.messagingservice.ms1;
+package ru.privalov;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Ms1Application {
+public class UserServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(Ms1Application.class, args);
+        SpringApplication.run(UserServiceApplication.class, args);
     }
 }
