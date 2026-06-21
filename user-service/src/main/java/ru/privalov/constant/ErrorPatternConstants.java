@@ -6,4 +6,5 @@ import lombok.experimental.UtilityClass;
 public class ErrorPatternConstants {
     public final String USERNAME_ALREADY_EXISTS = "Пользователь %s уже зарегистрирован в системе";
     public final String EMAIL_ALREADY_EXISTS = "Email %s уже используется";
+    public final String INVALID_USERNAME_OR_PASSWORD = "Неверное имя пользователя или пароль";
 }

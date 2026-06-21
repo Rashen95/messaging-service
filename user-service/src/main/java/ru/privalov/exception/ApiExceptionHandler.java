@@ -1,13 +1,13 @@
 package ru.privalov.exception;
 
-import java.time.Instant;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.time.Instant;
 
 @Slf4j
 @RestControllerAdvice
@@ -28,7 +28,7 @@ public class ApiExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(MethodArgumentNotValidException exception) {
         log.warn(exception.getMessage());
-        return problem(HttpStatus.BAD_REQUEST, "Request validation failed");
+        return problem(HttpStatus.BAD_REQUEST, "Ошибка валидации запроса");
     }
 
     private ProblemDetail problem(HttpStatus status, String detail) {

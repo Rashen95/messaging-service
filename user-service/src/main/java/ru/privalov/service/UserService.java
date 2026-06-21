@@ -41,10 +41,10 @@ public class UserService {
     @Transactional(readOnly = true)
     public JwtResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(userMapper.normalize(request.username()))
-                .orElseThrow(() -> new InvalidCredentialsException("Invalid username or password"));
+                .orElseThrow(() -> new InvalidCredentialsException(ErrorPatternConstants.INVALID_USERNAME_OR_PASSWORD));
 
         if (!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
-            throw new InvalidCredentialsException("Invalid username or password");
+            throw new InvalidCredentialsException(ErrorPatternConstants.INVALID_USERNAME_OR_PASSWORD);
         }
 
         return jwtService.createAccessToken(user);
