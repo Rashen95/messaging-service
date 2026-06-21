@@ -9,4 +9,5 @@ public class UrlConstants {
     public final String USERS = "/users";
     public final String REGISTER = "/register";
     public final String LOGIN = "/login";
+    public final String REFRESH = "/refresh";
 }

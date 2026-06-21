@@ -12,4 +12,5 @@ spring:
 
 jwt:
   secret: test-secret-key-for-user-service-jwt-256-bit
-  expiration: 1h
+  access-expiration: 1m
+  refresh-expiration: 24h
