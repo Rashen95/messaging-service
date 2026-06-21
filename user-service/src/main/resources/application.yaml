@@ -25,3 +25,7 @@ server:
 jwt:
   secret: ${USER_SERVICE_JWT_SECRET:local-dev-secret-key-for-user-service-jwt-256-bit}
   expiration: ${USER_SERVICE_JWT_EXPIRATION:1h}
+
+logging:
+  level:
+    ru.privalov: debug
