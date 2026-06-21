@@ -21,15 +21,15 @@ spring:
     test-rollback-on-update: false
 
 server:
-  port: ${USER_SERVICE_PORT:8081}
+  port: ${USER_SERVICE_PORT:0}
 
-#eureka:
-#  client:
-#    service-url:
-#      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
-#  instance:
-#    prefer-ip-address: true
-#    instance-id: ${spring.application.name}:${random.uuid}
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.uuid}
 
 jwt:
   secret: ${USER_SERVICE_JWT_SECRET:local-dev-secret-key-for-user-service-jwt-256-bit}

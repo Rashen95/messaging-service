@@ -1,12 +1,12 @@
-package ru.privalov.messagingservice.ms3;
+package ru.privalov;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class Ms3Application {
+public class ApiGateway {
 
     public static void main(String[] args) {
-        SpringApplication.run(Ms3Application.class, args);
+        SpringApplication.run(ApiGateway.class, args);
     }
 }
