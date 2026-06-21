@@ -20,8 +20,10 @@ public record UserRegistrationRequest(
         @Size(min = 8, max = 72)
         String password,
 
+        @Size(max = 255)
         String firstName,
 
+        @Size(max = 255)
         String lastName,
 
         LocalDate birthDate

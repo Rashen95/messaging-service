@@ -24,22 +24,22 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, unique = true, length = 50)
+    @Column
     private String username;
 
-    @Column(nullable = false, unique = true, length = 255)
+    @Column
     private String email;
 
-    @Column(nullable = false)
+    @Column
     private String passwordHash;
 
-    @Column(nullable = true)
+    @Column
     private String firstName;
 
-    @Column(nullable = true)
+    @Column
     private String lastName;
 
-    @Column(nullable = true)
+    @Column
     private LocalDate birthDate;
 
     @Builder
