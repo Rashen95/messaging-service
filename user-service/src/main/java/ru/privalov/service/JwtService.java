@@ -90,7 +90,7 @@ public class JwtService {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (Exception e) {
-            throw new InvalidCredentialsException(ErrorPatternConstants.INVALID_REFRESH_TOKEN);
+            throw new InvalidCredentialsException(ErrorPatternConstants.INVALID_TOKEN);
         }
     }
 

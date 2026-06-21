@@ -8,4 +8,5 @@ public class ErrorPatternConstants {
     public final String EMAIL_ALREADY_EXISTS = "Email %s уже используется";
     public final String INVALID_USERNAME_OR_PASSWORD = "Неверное имя пользователя или пароль";
     public final String INVALID_REFRESH_TOKEN = "Невалидный refresh токен";
+    public final String INVALID_TOKEN = "Невалидный токен";
 }
