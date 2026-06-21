@@ -50,4 +50,11 @@ public class UserExternalController {
         log.debug("Обновленный acсessToken: {}", response);
         return response;
     }
+
+    @PostMapping(UrlConstants.LOGOUT)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void logout(@Valid @RequestBody RefreshTokenRequest request) {
+        log.debug("Запрос на logout: {}", request);
+        userService.logout(request);
+    }
 }

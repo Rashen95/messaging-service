@@ -3,6 +3,7 @@ package ru.privalov.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import lombok.Builder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.privalov.constant.ErrorPatternConstants;
@@ -53,14 +54,17 @@ public class JwtService {
                 .build();
     }
 
-    public String extractUsernameFromRefreshToken(String refreshToken) {
+    public RefreshTokenPayload extractRefreshTokenPayload(String refreshToken) {
         Claims claims = parseClaims(refreshToken);
 
         if (!REFRESH_TOKEN_TYPE.equals(claims.get(TOKEN_TYPE_CLAIM, String.class))) {
             throw new InvalidCredentialsException(ErrorPatternConstants.INVALID_REFRESH_TOKEN);
         }
 
-        return claims.getSubject();
+        return RefreshTokenPayload.builder()
+                .username(claims.getSubject())
+                .expiresAt(claims.getExpiration().toInstant())
+                .build();
     }
 
     private String createToken(User user, Duration expiration, String tokenType) {
@@ -88,5 +92,13 @@ public class JwtService {
         } catch (Exception e) {
             throw new InvalidCredentialsException(ErrorPatternConstants.INVALID_REFRESH_TOKEN);
         }
+    }
+
+    @Builder
+    public record RefreshTokenPayload(
+            String username,
+
+            Instant expiresAt
+    ) {
     }
 }

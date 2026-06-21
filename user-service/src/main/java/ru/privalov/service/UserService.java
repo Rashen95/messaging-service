@@ -14,14 +14,23 @@ import ru.privalov.dto.registration.UserRegistrationResponse;
 import ru.privalov.exception.DuplicateUserException;
 import ru.privalov.exception.InvalidCredentialsException;
 import ru.privalov.mapper.UserMapper;
+import ru.privalov.model.RefreshToken;
 import ru.privalov.model.User;
+import ru.privalov.repository.RefreshTokenRepository;
 import ru.privalov.repository.UserRepository;
+
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.time.Instant;
+import java.util.HexFormat;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final UserMapper userMapper;
@@ -40,7 +49,7 @@ public class UserService {
         return userMapper.toRegistrationResponse(userRepository.save(user));
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public JwtResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(userMapper.normalize(request.username()))
                 .orElseThrow(() -> new InvalidCredentialsException(ErrorPatternConstants.INVALID_USERNAME_OR_PASSWORD));
@@ -49,15 +58,60 @@ public class UserService {
             throw new InvalidCredentialsException(ErrorPatternConstants.INVALID_USERNAME_OR_PASSWORD);
         }
 
-        return jwtService.createTokens(user);
+        JwtResponse response = jwtService.createTokens(user);
+        JwtService.RefreshTokenPayload payload = jwtService.extractRefreshTokenPayload(response.refreshToken());
+        saveRefreshToken(user, response.refreshToken(), payload.expiresAt());
+
+        return response;
     }
 
     @Transactional(readOnly = true)
     public AccessTokenResponse refresh(RefreshTokenRequest request) {
-        String username = jwtService.extractUsernameFromRefreshToken(request.refreshToken());
-        User user = userRepository.findByUsername(username)
+        JwtService.RefreshTokenPayload payload = jwtService.extractRefreshTokenPayload(request.refreshToken());
+        RefreshToken refreshToken = findActiveRefreshToken(request.refreshToken());
+
+        if (!refreshToken.getUser().getUsername().equals(payload.username())) {
+            throw new InvalidCredentialsException(ErrorPatternConstants.INVALID_REFRESH_TOKEN);
+        }
+
+        return jwtService.createAccessToken(refreshToken.getUser());
+    }
+
+    @Transactional
+    public void logout(RefreshTokenRequest request) {
+        jwtService.extractRefreshTokenPayload(request.refreshToken());
+        RefreshToken refreshToken = findActiveRefreshToken(request.refreshToken());
+        refreshToken.revoke(Instant.now());
+    }
+
+    private void saveRefreshToken(User user, String token, Instant expiresAt) {
+        refreshTokenRepository.save(
+                RefreshToken.builder()
+                .user(user)
+                .tokenHash(hashToken(token))
+                .expiresAt(expiresAt)
+                .createdAt(Instant.now())
+                .build()
+        );
+    }
+
+    private RefreshToken findActiveRefreshToken(String token) {
+        RefreshToken refreshToken = refreshTokenRepository.findByTokenHashAndRevokedAtIsNull(hashToken(token))
                 .orElseThrow(() -> new InvalidCredentialsException(ErrorPatternConstants.INVALID_REFRESH_TOKEN));
 
-        return jwtService.createAccessToken(user);
+        if (!refreshToken.isActive(Instant.now())) {
+            throw new InvalidCredentialsException(ErrorPatternConstants.INVALID_REFRESH_TOKEN);
+        }
+
+        return refreshToken;
+    }
+
+    private String hashToken(String token) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return HexFormat.of().formatHex(digest.digest(token.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("SHA-256 algorithm is not available", exception);
+        }
     }
 }
