@@ -51,11 +51,11 @@ public class RefreshToken {
         this.createdAt = createdAt;
     }
 
-    public boolean isActive(Instant now) {
-        return revokedAt == null && expiresAt.isAfter(now);
+    public boolean isActive() {
+        return revokedAt == null && expiresAt.isAfter(Instant.now());
     }
 
-    public void revoke(Instant revokedAt) {
-        this.revokedAt = revokedAt;
+    public void revoke() {
+        this.revokedAt = Instant.now();
     }
 }

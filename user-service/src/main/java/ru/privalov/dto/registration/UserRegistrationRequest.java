@@ -2,6 +2,7 @@ package ru.privalov.dto.registration;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
@@ -26,6 +27,7 @@ public record UserRegistrationRequest(
         @Size(max = 255)
         String lastName,
 
+        @PastOrPresent
         LocalDate birthDate
 ) {
 }

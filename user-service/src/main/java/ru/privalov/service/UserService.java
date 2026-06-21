@@ -79,9 +79,8 @@ public class UserService {
 
     @Transactional
     public void logout(RefreshTokenRequest request) {
-        jwtService.extractRefreshTokenPayload(request.refreshToken());
         RefreshToken refreshToken = findActiveRefreshToken(request.refreshToken());
-        refreshToken.revoke(Instant.now());
+        refreshToken.revoke();
     }
 
     private void saveRefreshToken(User user, String token, Instant expiresAt) {
@@ -99,7 +98,7 @@ public class UserService {
         RefreshToken refreshToken = refreshTokenRepository.findByTokenHashAndRevokedAtIsNull(hashToken(token))
                 .orElseThrow(() -> new InvalidCredentialsException(ErrorPatternConstants.INVALID_REFRESH_TOKEN));
 
-        if (!refreshToken.isActive(Instant.now())) {
+        if (!refreshToken.isActive()) {
             throw new InvalidCredentialsException(ErrorPatternConstants.INVALID_REFRESH_TOKEN);
         }
 
