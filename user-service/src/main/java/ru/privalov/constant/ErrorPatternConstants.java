@@ -1,0 +1,9 @@
+package ru.privalov.constant;
+
+import lombok.experimental.UtilityClass;
+
+@UtilityClass
+public class ErrorPatternConstants {
+    public final String USERNAME_ALREADY_EXISTS = "Пользователь %s уже зарегистрирован в системе";
+    public final String EMAIL_ALREADY_EXISTS = "Email %s уже используется";
+}

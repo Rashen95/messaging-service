@@ -2,14 +2,18 @@ package ru.privalov.dto.registration;
 
 import lombok.Builder;
 
-import java.util.UUID;
+import java.time.LocalDate;
 
 @Builder
 public record UserRegistrationResponse(
-        UUID id,
-
         String username,
 
-        String email
+        String email,
+
+        String firstName,
+
+        String lastName,
+
+        LocalDate birthDate
 ) {
 }
