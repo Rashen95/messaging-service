@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
@@ -32,10 +33,22 @@ public class User {
     @Column(nullable = false)
     private String passwordHash;
 
+    @Column(nullable = true)
+    private String firstName;
+
+    @Column(nullable = true)
+    private String lastName;
+
+    @Column(nullable = true)
+    private LocalDate birthDate;
+
     @Builder
-    public User(String username, String email, String passwordHash) {
+    public User(String username, String email, String passwordHash, String firstName, String lastName, LocalDate birthDate) {
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.birthDate = birthDate;
     }
 }

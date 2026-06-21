@@ -1,4 +1,4 @@
-package ru.privalov.dto;
+package ru.privalov.dto.login;
 
 import jakarta.validation.constraints.NotBlank;
 

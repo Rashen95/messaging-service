@@ -1,10 +1,10 @@
-package ru.privalov;
+package ru.privalov.service;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import ru.privalov.dto.JwtResponse;
+import ru.privalov.dto.login.JwtResponse;
 import ru.privalov.model.User;
 
 import javax.crypto.SecretKey;
@@ -40,6 +40,6 @@ public class JwtService {
                 .signWith(secretKey)
                 .compact();
 
-        return new JwtResponse(token, "Bearer", expiration.toSeconds());
+        return JwtResponse.builder().accessToken(token).build();
     }
 }

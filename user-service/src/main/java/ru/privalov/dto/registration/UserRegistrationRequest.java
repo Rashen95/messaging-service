@@ -1,8 +1,10 @@
-package ru.privalov.dto;
+package ru.privalov.dto.registration;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+
+import java.time.LocalDate;
 
 public record UserRegistrationRequest(
         @NotBlank
@@ -16,6 +18,12 @@ public record UserRegistrationRequest(
 
         @NotBlank
         @Size(min = 8, max = 72)
-        String password
+        String password,
+
+        String firstName,
+
+        String lastName,
+
+        LocalDate birthDate
 ) {
 }

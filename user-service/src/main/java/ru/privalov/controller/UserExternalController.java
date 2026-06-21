@@ -9,26 +9,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.privalov.constant.UrlConstants;
-import ru.privalov.dto.JwtResponse;
-import ru.privalov.dto.LoginRequest;
-import ru.privalov.dto.UserRegistrationRequest;
-import ru.privalov.dto.UserResponse;
-import ru.privalov.UserService;
+import ru.privalov.dto.login.JwtResponse;
+import ru.privalov.dto.login.LoginRequest;
+import ru.privalov.dto.registration.UserRegistrationRequest;
+import ru.privalov.dto.registration.UserRegistrationResponse;
+import ru.privalov.service.UserService;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(UrlConstants.USERS_API)
-public class UserController {
+@RequestMapping(UrlConstants.API + UrlConstants.EXTERNAL + UrlConstants.USERS)
+public class UserExternalController {
 
     private final UserService userService;
 
-    @PostMapping(UrlConstants.REGISTER_URL)
+    @PostMapping(UrlConstants.REGISTER)
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponse register(@Valid @RequestBody UserRegistrationRequest request) {
+    public UserRegistrationResponse register(@Valid @RequestBody UserRegistrationRequest request) {
         return userService.register(request);
     }
 
-    @PostMapping(UrlConstants.LOGIN_URL)
+    @PostMapping(UrlConstants.LOGIN)
     public JwtResponse login(@Valid @RequestBody LoginRequest request) {
         return userService.login(request);
     }

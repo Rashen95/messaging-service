@@ -4,7 +4,9 @@ import lombok.experimental.UtilityClass;
 
 @UtilityClass
 public class UrlConstants {
-    public final String USERS_API = "/api/users";
-    public final String REGISTER_URL = "/register";
-    public final String LOGIN_URL = "/login";
+    public final String API = "/api";
+    public final String EXTERNAL = "/external";
+    public final String USERS = "/users";
+    public final String REGISTER = "/register";
+    public final String LOGIN = "/login";
 }
