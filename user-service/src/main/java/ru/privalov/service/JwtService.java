@@ -7,8 +7,8 @@ import lombok.Builder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import ru.privalov.constant.ErrorPatternConstants;
-import ru.privalov.dto.refresh.AccessTokenResponse;
 import ru.privalov.dto.login.JwtResponse;
+import ru.privalov.dto.refresh.AccessTokenResponse;
 import ru.privalov.exception.InvalidCredentialsException;
 import ru.privalov.model.User;
 

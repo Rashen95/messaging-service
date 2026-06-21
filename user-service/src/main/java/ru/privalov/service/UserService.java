@@ -5,9 +5,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.privalov.constant.ErrorPatternConstants;
-import ru.privalov.dto.refresh.AccessTokenResponse;
 import ru.privalov.dto.login.JwtResponse;
 import ru.privalov.dto.login.LoginRequest;
+import ru.privalov.dto.refresh.AccessTokenResponse;
 import ru.privalov.dto.refresh.RefreshTokenRequest;
 import ru.privalov.dto.registration.UserRegistrationRequest;
 import ru.privalov.dto.registration.UserRegistrationResponse;
@@ -87,11 +87,11 @@ public class UserService {
     private void saveRefreshToken(User user, String token, Instant expiresAt) {
         refreshTokenRepository.save(
                 RefreshToken.builder()
-                .user(user)
-                .tokenHash(hashToken(token))
-                .expiresAt(expiresAt)
-                .createdAt(Instant.now())
-                .build()
+                        .user(user)
+                        .tokenHash(hashToken(token))
+                        .expiresAt(expiresAt)
+                        .createdAt(Instant.now())
+                        .build()
         );
     }
 
