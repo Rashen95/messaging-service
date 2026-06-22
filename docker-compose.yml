@@ -17,6 +17,29 @@ services:
       timeout: 5s
       retries: 10
 
+  redis:
+    image: redis:8.0
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:4.1-management
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   discovery-server:
     build:
       context: .
@@ -65,6 +88,75 @@ services:
       USER_SERVICE_DB_URL: jdbc:postgresql://postgres:5432/privalov-db
       USER_SERVICE_DB_USERNAME: admin
       USER_SERVICE_DB_PASSWORD: postgres
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
+    deploy:
+      replicas: 3
+
+  connection-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: connection-service
+    image: messaging-service/connection-service:local
+    restart: unless-stopped
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      discovery-server:
+        condition: service_started
+    environment:
+      CONNECTION_SERVICE_PORT: 8080
+      CONNECTION_SERVICE_REDIS_HOST: redis
+      CONNECTION_SERVICE_REDIS_PORT: 6379
+      SPRING_RABBITMQ_HOST: rabbitmq
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
+
+  mess-history:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: mess-history
+    image: messaging-service/mess-history:local
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      discovery-server:
+        condition: service_started
+    environment:
+      MESS_HISTORY_PORT: 8080
+      MESS_HISTORY_DB_URL: jdbc:postgresql://postgres:5432/privalov-db
+      MESS_HISTORY_DB_USERNAME: admin
+      MESS_HISTORY_DB_PASSWORD: postgres
+      SPRING_RABBITMQ_HOST: rabbitmq
+      EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
+
+  mess-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: mess-service
+    image: messaging-service/mess-service:local
+    restart: unless-stopped
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      connection-service:
+        condition: service_started
+      mess-history:
+        condition: service_started
+      discovery-server:
+        condition: service_started
+    environment:
+      MESS_SERVICE_PORT: 8080
+      SPRING_RABBITMQ_HOST: rabbitmq
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
     deploy:
       replicas: 3

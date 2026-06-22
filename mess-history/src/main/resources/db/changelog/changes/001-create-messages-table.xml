@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="001-create-messages-table" author="codex">
+        <createTable tableName="messages">
+            <column name="id" type="uuid">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="sender_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="recipient_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="content" type="text">
+                <constraints nullable="false"/>
+            </column>
+            <column name="sent_at" type="timestamp with time zone">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="messages" indexName="idx_messages_dialog_sent_at">
+            <column name="sender_id"/>
+            <column name="recipient_id"/>
+            <column name="sent_at"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>

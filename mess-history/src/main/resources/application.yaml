@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: mess-history
+  datasource:
+    url: ${MESS_HISTORY_DB_URL:jdbc:postgresql://localhost:5432/privalov-db}
+    username: ${MESS_HISTORY_DB_USERNAME:admin}
+    password: ${MESS_HISTORY_DB_PASSWORD:postgres}
+    hikari:
+      schema: mess_history
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.xml
+    default-schema: mess_history
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+
+server:
+  port: ${MESS_HISTORY_PORT:0}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.uuid}
+
+messaging:
+  rabbit:
+    history-exchange: mess.history
+    history-queue: mess-history.store
+    history-routing-key: message.store
+
+logging:
+  level:
+    ru.privalov: debug

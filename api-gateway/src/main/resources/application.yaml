@@ -4,12 +4,16 @@ spring:
   cloud:
     gateway:
       server:
-        webmvc:
+        webflux:
           routes:
             - id: user-service
               uri: lb://user-service
               predicates:
                 - Path=/api/external/users/**
+            - id: mess-service-websocket
+              uri: lb:ws://mess-service
+              predicates:
+                - Path=/ws/messages
 
 server:
   port: ${API_GATEWAY_PORT:8080}

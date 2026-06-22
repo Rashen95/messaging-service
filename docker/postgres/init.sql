@@ -1,1 +1,2 @@
 CREATE SCHEMA IF NOT EXISTS user_service;
+CREATE SCHEMA IF NOT EXISTS mess_history;

@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: connection-service
+  data:
+    redis:
+      host: ${CONNECTION_SERVICE_REDIS_HOST:localhost}
+      port: ${CONNECTION_SERVICE_REDIS_PORT:6379}
+  rabbitmq:
+    host: ${SPRING_RABBITMQ_HOST:localhost}
+    port: ${SPRING_RABBITMQ_PORT:5672}
+
+server:
+  port: ${CONNECTION_SERVICE_PORT:0}
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
+  instance:
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${random.uuid}
+
+messaging:
+  rabbit:
+    presence-exchange: mess.presence
+    presence-queue: connection.presence
+    presence-routing-key: presence.changed
+  connections:
+    ttl: ${CONNECTION_SERVICE_CONNECTION_TTL:2m}
+
+logging:
+  level:
+    ru.privalov: debug
