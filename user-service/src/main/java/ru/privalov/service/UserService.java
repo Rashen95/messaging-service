@@ -24,6 +24,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.HexFormat;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -75,6 +76,11 @@ public class UserService {
         }
 
         return jwtService.createAccessToken(refreshToken.getUser());
+    }
+
+    @Transactional(readOnly = true)
+    public Boolean userExists(UUID userId) {
+        return refreshTokenRepository.existsById(userId);
     }
 
     @Transactional

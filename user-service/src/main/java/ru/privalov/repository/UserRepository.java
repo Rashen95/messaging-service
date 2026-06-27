@@ -1,5 +1,6 @@
 package ru.privalov.repository;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import ru.privalov.model.User;
@@ -15,4 +16,6 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     boolean existsByEmail(String email);
 
     Optional<User> findByUsername(String username);
+
+    boolean existsById(@NonNull UUID id);
 }

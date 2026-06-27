@@ -18,6 +18,7 @@ public class MessagingService {
 
     private final RabbitTemplate rabbitTemplate;
     private final ConnectionClient connectionClient;
+    private final UserServiceClient userServiceClient;
 
     @Value("${messaging.rabbit.history-exchange}")
     private String historyExchange;
@@ -65,6 +66,9 @@ public class MessagingService {
         }
         if (request.content() == null || request.content().isBlank()) {
             throw new IllegalArgumentException("content is required");
+        }
+        if (userServiceClient.existsByUserId(request.recipientId())) {
+            throw new IllegalArgumentException("user with id " + request.recipientId() + " not found");
         }
     }
 }

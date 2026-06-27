@@ -21,6 +21,7 @@ messaging:
   websocket:
     endpoint: /ws/messages
   connection-service-url: ${CONNECTION_SERVICE_URL:http://connection-service}
+  user-service-url: ${USER_SERVICE_URL:http://user-service}
   rabbit:
     presence-exchange: mess.presence
     presence-routing-key: presence.changed
