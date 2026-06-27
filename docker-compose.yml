@@ -18,7 +18,7 @@ services:
       retries: 10
 
   redis:
-    image: redis:8.0
+    image: redis:8.8
     restart: unless-stopped
     ports:
       - "6379:6379"
@@ -29,7 +29,7 @@ services:
       retries: 10
 
   rabbitmq:
-    image: rabbitmq:4.1-management
+    image: rabbitmq:4.3.2-management
     restart: unless-stopped
     ports:
       - "5672:5672"
