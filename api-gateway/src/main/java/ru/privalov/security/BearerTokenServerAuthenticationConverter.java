@@ -17,9 +17,6 @@ public class BearerTokenServerAuthenticationConverter implements ServerAuthentic
     public Mono<Authentication> convert(ServerWebExchange exchange) {
         String token = extractFromAuthorizationHeader(exchange);
         if (token == null || token.isBlank()) {
-            token = extractFromQuery(exchange);
-        }
-        if (token == null || token.isBlank()) {
             return Mono.empty();
         }
 
@@ -32,13 +29,5 @@ public class BearerTokenServerAuthenticationConverter implements ServerAuthentic
             return null;
         }
         return authorization.substring(BEARER_PREFIX.length());
-    }
-
-    private String extractFromQuery(ServerWebExchange exchange) {
-        String token = exchange.getRequest().getQueryParams().getFirst("access_token");
-        if (token == null || token.isBlank()) {
-            token = exchange.getRequest().getQueryParams().getFirst("token");
-        }
-        return token;
     }
 }
