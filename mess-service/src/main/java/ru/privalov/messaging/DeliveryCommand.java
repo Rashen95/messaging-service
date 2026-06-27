@@ -5,8 +5,8 @@ import java.util.UUID;
 
 public record DeliveryCommand(
         UUID messageId,
-        Long senderId,
-        Long recipientId,
+        UUID senderId,
+        UUID recipientId,
         String content,
         Instant sentAt
 ) {

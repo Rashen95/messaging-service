@@ -10,7 +10,6 @@ import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
-import org.springframework.web.util.UriComponentsBuilder;
 import ru.privalov.dto.IncomingMessageRequest;
 import ru.privalov.messaging.PresenceEvent;
 import ru.privalov.messaging.PresenceStatus;
@@ -19,7 +18,7 @@ import ru.privalov.service.MessagingService;
 
 import java.time.Instant;
 import java.util.Map;
-import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Component
@@ -27,6 +26,7 @@ import java.util.Optional;
 public class MessageWebSocketHandler extends TextWebSocketHandler {
 
     private static final String USER_ID_ATTRIBUTE = "userId";
+    private static final String USER_ID_HEADER = "X-User-Id";
 
     private final ObjectMapper objectMapper;
     private final RabbitTemplate rabbitTemplate;
@@ -44,8 +44,7 @@ public class MessageWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        Long userId = extractUserId(session)
-                .orElseThrow(() -> new IllegalArgumentException("Query parameter userId is required"));
+        UUID userId = extractUserId(session);
 
         session.getAttributes().put(USER_ID_ATTRIBUTE, userId);
         messageSessionRegistry.register(userId, session);
@@ -56,7 +55,7 @@ public class MessageWebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         try {
-            Long senderId = (Long) session.getAttributes().get(USER_ID_ATTRIBUTE);
+            UUID senderId = (UUID) session.getAttributes().get(USER_ID_ATTRIBUTE);
             IncomingMessageRequest request = objectMapper.readValue(message.getPayload(), IncomingMessageRequest.class);
             messagingService.processIncoming(senderId, request);
         } catch (Exception exception) {
@@ -67,7 +66,7 @@ public class MessageWebSocketHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        Long userId = (Long) session.getAttributes().get(USER_ID_ATTRIBUTE);
+        UUID userId = (UUID) session.getAttributes().get(USER_ID_ATTRIBUTE);
         if (userId == null) {
             return;
         }
@@ -77,20 +76,15 @@ public class MessageWebSocketHandler extends TextWebSocketHandler {
         log.debug("User {} disconnected from replica {}", userId, replicaId);
     }
 
-    private Optional<Long> extractUserId(WebSocketSession session) {
-        if (session.getUri() == null) {
-            return Optional.empty();
-        }
-        String userId = UriComponentsBuilder.fromUri(session.getUri()).build()
-                .getQueryParams()
-                .getFirst(USER_ID_ATTRIBUTE);
+    private UUID extractUserId(WebSocketSession session) {
+        String userId = session.getHandshakeHeaders().getFirst(USER_ID_HEADER);
         if (userId == null || userId.isBlank()) {
-            return Optional.empty();
+            throw new IllegalArgumentException("Authenticated user header is required");
         }
-        return Optional.of(Long.valueOf(userId));
+        return UUID.fromString(userId);
     }
 
-    private void publishPresence(Long userId, PresenceStatus status) {
+    private void publishPresence(UUID userId, PresenceStatus status) {
         rabbitTemplate.convertAndSend(
                 presenceExchange,
                 presenceRoutingKey,

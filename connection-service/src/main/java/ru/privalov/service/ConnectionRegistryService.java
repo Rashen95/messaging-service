@@ -9,12 +9,13 @@ import ru.privalov.messaging.PresenceEvent;
 import ru.privalov.messaging.PresenceStatus;
 
 import java.time.Duration;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class ConnectionRegistryService {
 
-    private static final String KEY_PATTERN = "connection:user:%d";
+    private static final String KEY_PATTERN = "connection:user:%s";
 
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -35,12 +36,12 @@ public class ConnectionRegistryService {
         }
     }
 
-    public ConnectionResponse find(Long userId) {
+    public ConnectionResponse find(UUID userId) {
         String replicaId = redisTemplate.opsForValue().get(key(userId));
         return new ConnectionResponse(userId, replicaId != null, replicaId);
     }
 
-    private String key(Long userId) {
+    private String key(UUID userId) {
         return KEY_PATTERN.formatted(userId);
     }
 }

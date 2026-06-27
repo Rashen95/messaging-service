@@ -10,6 +10,7 @@ import ru.privalov.dto.MessageResponse;
 import ru.privalov.repository.MessageRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,8 +20,8 @@ public class MessageHistoryInternalController {
     private final MessageRepository messageRepository;
 
     @GetMapping
-    public List<MessageResponse> findDialog(@RequestParam Long firstUserId,
-                                            @RequestParam Long secondUserId,
+    public List<MessageResponse> findDialog(@RequestParam UUID firstUserId,
+                                            @RequestParam UUID secondUserId,
                                             @RequestParam(defaultValue = "50") int limit) {
         return messageRepository.findDialog(firstUserId, secondUserId, PageRequest.of(0, Math.min(limit, 100)))
                 .stream()

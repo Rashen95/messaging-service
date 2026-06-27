@@ -10,10 +10,10 @@
             <column name="id" type="uuid">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="sender_id" type="bigint">
+            <column name="sender_id" type="uuid">
                 <constraints nullable="false"/>
             </column>
-            <column name="recipient_id" type="bigint">
+            <column name="recipient_id" type="uuid">
                 <constraints nullable="false"/>
             </column>
             <column name="content" type="text">

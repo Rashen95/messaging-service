@@ -25,3 +25,6 @@ eureka:
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
+
+jwt:
+  secret: ${API_GATEWAY_JWT_SECRET:local-dev-secret-key-for-user-service-jwt-256-bit}

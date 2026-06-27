@@ -1,7 +1,9 @@
 package ru.privalov.dto;
 
+import java.util.UUID;
+
 public record ConnectionResponse(
-        Long userId,
+        UUID userId,
         boolean online,
         String replicaId
 ) {

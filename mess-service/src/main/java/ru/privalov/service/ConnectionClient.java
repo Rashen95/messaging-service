@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import ru.privalov.dto.ConnectionResponse;
 
+import java.util.UUID;
+
 @Component
 @RequiredArgsConstructor
 public class ConnectionClient {
@@ -15,7 +17,7 @@ public class ConnectionClient {
     @Value("${messaging.connection-service-url}")
     private String connectionServiceUrl;
 
-    public ConnectionResponse findConnection(Long userId) {
+    public ConnectionResponse findConnection(UUID userId) {
         return restTemplate.getForObject(
                 connectionServiceUrl + "/api/internal/connections/{userId}",
                 ConnectionResponse.class,

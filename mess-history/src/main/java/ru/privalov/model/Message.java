@@ -24,10 +24,10 @@ public class Message {
     private UUID id;
 
     @Column(nullable = false)
-    private Long senderId;
+    private UUID senderId;
 
     @Column(nullable = false)
-    private Long recipientId;
+    private UUID recipientId;
 
     @Column(nullable = false)
     private String content;

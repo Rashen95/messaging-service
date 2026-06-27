@@ -16,5 +16,5 @@ public interface MessageRepository extends JpaRepository<Message, UUID> {
                or (m.senderId = :secondUserId and m.recipientId = :firstUserId)
             order by m.sentAt desc
             """)
-    List<Message> findDialog(Long firstUserId, Long secondUserId, Pageable pageable);
+    List<Message> findDialog(UUID firstUserId, UUID secondUserId, Pageable pageable);
 }

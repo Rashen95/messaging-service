@@ -1,7 +1,9 @@
 package ru.privalov.dto;
 
+import java.util.UUID;
+
 public record IncomingMessageRequest(
-        Long recipientId,
+        UUID recipientId,
         String content
 ) {
 }

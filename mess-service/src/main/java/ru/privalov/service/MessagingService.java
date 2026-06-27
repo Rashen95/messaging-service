@@ -28,7 +28,7 @@ public class MessagingService {
     @Value("${messaging.rabbit.delivery-exchange}")
     private String deliveryExchange;
 
-    public void processIncoming(Long senderId, IncomingMessageRequest request) {
+    public void processIncoming(UUID senderId, IncomingMessageRequest request) {
         validate(senderId, request);
 
         Instant sentAt = Instant.now();
@@ -56,7 +56,7 @@ public class MessagingService {
         ));
     }
 
-    private void validate(Long senderId, IncomingMessageRequest request) {
+    private void validate(UUID senderId, IncomingMessageRequest request) {
         if (senderId == null) {
             throw new IllegalArgumentException("senderId is required");
         }
