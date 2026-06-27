@@ -18,12 +18,12 @@ public class DeliveryCommandListener {
 
     @RabbitListener(queues = "#{deliveryQueue.name}")
     public void handle(DeliveryCommand command) {
-        messageSessionRegistry.find(command.recipientId()).ifPresent(session -> {
+        messageSessionRegistry.find(command.recipientId()).ifPresentOrElse(session -> {
             try {
                 session.sendMessage(new TextMessage(objectMapper.writeValueAsString(command)));
             } catch (Exception exception) {
                 log.warn("Failed to deliver message {} to user {}", command.messageId(), command.recipientId(), exception);
             }
-        });
+        }, () -> log.warn("No local websocket session for user {}, message {}", command.recipientId(), command.messageId()));
     }
 }

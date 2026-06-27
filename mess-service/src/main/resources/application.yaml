@@ -17,7 +17,7 @@ eureka:
     instance-id: ${spring.application.name}:${messaging.replica-id}
 
 messaging:
-  replica-id: ${MESS_SERVICE_REPLICA_ID:${HOSTNAME:${random.uuid}}}
+  replica-id: ${MESS_SERVICE_REPLICA_ID:${HOSTNAME:localhost}-${PID:${random.uuid}}}
   websocket:
     endpoint: /ws/messages
   connection-service-url: ${CONNECTION_SERVICE_URL:http://connection-service}

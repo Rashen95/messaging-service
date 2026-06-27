@@ -4,6 +4,7 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
 import org.springframework.amqp.core.Queue;
+import org.springframework.amqp.core.QueueBuilder;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
@@ -32,7 +33,10 @@ public class RabbitConfig {
     @Bean
     public Queue deliveryQueue(@Value("${messaging.rabbit.delivery-queue-prefix}") String queuePrefix,
                                @Value("${messaging.replica-id}") String replicaId) {
-        return new Queue(queuePrefix + replicaId, true);
+        return QueueBuilder.nonDurable(queuePrefix + replicaId)
+                .exclusive()
+                .autoDelete()
+                .build();
     }
 
     @Bean
