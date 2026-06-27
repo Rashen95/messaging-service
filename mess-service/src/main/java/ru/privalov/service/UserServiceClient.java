@@ -16,11 +16,12 @@ public class UserServiceClient {
     @Value("${messaging.user-service-url}")
     private String userServiceUrl;
 
-    public Boolean existsByUserId(UUID userId) {
-        return restTemplate.getForObject(
-                userServiceUrl + "api/external/users/exists/{userId}",
+    public boolean existsByUserId(UUID userId) {
+        Boolean exists = restTemplate.getForObject(
+                userServiceUrl + "/api/external/users/exists/{userId}",
                 Boolean.class,
                 userId
         );
+        return Boolean.TRUE.equals(exists);
     }
 }

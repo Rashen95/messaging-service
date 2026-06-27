@@ -64,11 +64,10 @@ public class UserExternalController {
     }
 
     @GetMapping(UrlConstants.EXISTS)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ResponseEntity<Boolean> userExists(@PathVariable UUID userId) {
+    public Boolean userExists(@PathVariable UUID userId) {
         log.debug("Запрос на проверку наличия пользователя: {}", userId);
         Boolean isUserExists = userService.userExists(userId);
         log.debug("Факт наличия пользователя {}: {}", userId, isUserExists);
-        return new ResponseEntity<>(userService.userExists(userId), HttpStatus.OK);
+        return isUserExists;
     }
 }

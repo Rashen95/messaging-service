@@ -80,7 +80,7 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Boolean userExists(UUID userId) {
-        return refreshTokenRepository.existsById(userId);
+        return userRepository.existsById(userId);
     }
 
     @Transactional
