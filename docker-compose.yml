@@ -90,7 +90,7 @@ services:
       USER_SERVICE_DB_PASSWORD: postgres
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
     deploy:
-      replicas: 3
+      replicas: 2
 
   connection-service:
     build:
@@ -113,6 +113,8 @@ services:
       CONNECTION_SERVICE_REDIS_PORT: 6379
       SPRING_RABBITMQ_HOST: rabbitmq
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
+    deploy:
+      replicas: 2
 
   mess-history:
     build:
@@ -136,6 +138,8 @@ services:
       MESS_HISTORY_DB_PASSWORD: postgres
       SPRING_RABBITMQ_HOST: rabbitmq
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
+    deploy:
+      replicas: 2
 
   mess-service:
     build:
@@ -159,7 +163,7 @@ services:
       SPRING_RABBITMQ_HOST: rabbitmq
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
     deploy:
-      replicas: 3
+      replicas: 2
 
 volumes:
   postgres_data:
