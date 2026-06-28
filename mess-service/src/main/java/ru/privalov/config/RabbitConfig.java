@@ -31,7 +31,7 @@ public class RabbitConfig {
     @Bean
     public Queue deliveryQueue(@Value("${messaging.rabbit.delivery-queue-prefix}") String queuePrefix,
                                @Value("${messaging.replica-id}") String replicaId) {
-        return new Queue(queuePrefix + replicaId, false);
+        return new Queue(queuePrefix + replicaId, false, true, true);
     }
 
     @Bean
