@@ -114,11 +114,13 @@ services:
       discovery-server:
         condition: service_started
     environment:
-      CONNECTION_SERVICE_PORT: 8080
       CONNECTION_SERVICE_REDIS_HOST: redis
       CONNECTION_SERVICE_REDIS_PORT: 6379
       SPRING_RABBITMQ_HOST: rabbitmq
+      SPRING_RABBITMQ_PORT: 5672
+      CONNECTION_SERVICE_PORT: 8080
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      CONNECTION_SERVICE_CONNECTION_TTL: 30m
     deploy:
       replicas: 2
 
