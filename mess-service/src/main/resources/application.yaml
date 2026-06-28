@@ -14,10 +14,10 @@ eureka:
       defaultZone: ${EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE:http://localhost:8761/eureka/}
   instance:
     prefer-ip-address: true
-    instance-id: ${spring.application.name}:${messaging.replica-id}
+    instance-id: ${spring.application.name}:${random.uuid}
 
 messaging:
-  replica-id: ${MESS_SERVICE_REPLICA_ID:${HOSTNAME:localhost}-${PID:${random.uuid}}}
+  replica-id: ${eureka.instance.instance-id}
   websocket:
     endpoint: /ws/messages
   connection-service-url: ${CONNECTION_SERVICE_URL:http://connection-service}

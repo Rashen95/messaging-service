@@ -46,7 +46,6 @@ public class MessageWebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         UUID userId = extractUserId(session);
 
-        session.getAttributes().put(USER_ID_ATTRIBUTE, userId);
         messageSessionRegistry.register(userId, session);
         publishPresence(userId, PresenceStatus.CONNECTED);
         log.debug("User {} connected to replica {}", userId, replicaId);
@@ -55,7 +54,7 @@ public class MessageWebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         try {
-            UUID senderId = (UUID) session.getAttributes().get(USER_ID_ATTRIBUTE);
+            UUID senderId = extractUserId(session);
             IncomingMessageRequest request = objectMapper.readValue(message.getPayload(), IncomingMessageRequest.class);
             messagingService.processIncoming(senderId, request);
         } catch (Exception exception) {

@@ -11,5 +11,5 @@ public class UrlConstants {
     public final String LOGIN = "/login";
     public final String REFRESH = "/refresh";
     public final String LOGOUT = "/logout";
-    public final String EXISTS = "/exists/{userId}";
+    public final String EXISTS = "/exists/{userIds}";
 }

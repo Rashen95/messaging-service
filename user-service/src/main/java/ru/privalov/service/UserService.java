@@ -29,7 +29,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.HexFormat;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -90,8 +93,9 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Boolean userExists(UUID userId) {
-        return userRepository.existsById(userId);
+    public Map<UUID, Boolean> usersExists(List<UUID> userIds) {
+        return userIds.stream()
+                .collect(Collectors.toMap(identity -> identity, userRepository::existsById));
     }
 
     @Transactional

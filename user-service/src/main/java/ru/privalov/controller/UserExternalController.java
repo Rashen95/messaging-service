@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,6 +20,8 @@ import ru.privalov.dto.registration.UserRegistrationRequest;
 import ru.privalov.dto.registration.UserRegistrationResponse;
 import ru.privalov.service.UserService;
 
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -64,10 +65,10 @@ public class UserExternalController {
     }
 
     @GetMapping(UrlConstants.EXISTS)
-    public Boolean userExists(@PathVariable UUID userId) {
-        log.debug("Запрос на проверку наличия пользователя: {}", userId);
-        Boolean isUserExists = userService.userExists(userId);
-        log.debug("Факт наличия пользователя {}: {}", userId, isUserExists);
+    public Map<UUID, Boolean> usersExists(@PathVariable List<UUID> userIds) {
+        log.debug("Запрос на проверку наличия пользователей: {}", userIds);
+        Map<UUID, Boolean> isUserExists = userService.usersExists(userIds);
+        log.debug("Факт наличия пользователей {}", isUserExists);
         return isUserExists;
     }
 }
