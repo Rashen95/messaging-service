@@ -43,7 +43,7 @@ public class UserExternalController {
     public JwtResponse login(@Valid @RequestBody LoginRequest request) {
         log.debug("Запрос на логин пользователя: {}", request);
         JwtResponse response = userService.login(request);
-        log.debug("Ответ по регистрации пользователя: {}", response);
+        log.debug("Ответ на логин пользователя: {}", response);
         return response;
     }
 
