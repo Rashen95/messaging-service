@@ -3,7 +3,7 @@ package ru.privalov.dto;
 import java.util.List;
 import java.util.UUID;
 
-public record ExistsRequest(
+public record UsersExistsRequest(
         List<UUID> recipientIds
 ) {
 }

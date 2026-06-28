@@ -27,4 +27,6 @@ eureka:
     instance-id: ${spring.application.name}:${server.port}
 
 jwt:
-  secret: ${API_GATEWAY_JWT_SECRET:local-dev-secret-key-for-user-service-jwt-256-bit}
+  secret: ${USER_SERVICE_JWT_SECRET:local-dev-secret-key-for-user-service-jwt-256-bit}
+  access-expiration: ${USER_SERVICE_JWT_ACCESS_EXPIRATION:5m}
+  refresh-expiration: ${USER_SERVICE_JWT_REFRESH_EXPIRATION:30d}

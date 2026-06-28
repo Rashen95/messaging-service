@@ -67,7 +67,9 @@ services:
     environment:
       API_GATEWAY_PORT: 8080
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
-      API_GATEWAY_JWT_SECRET: local-dev-secret-key-for-user-service-jwt-256-bit
+      AUSER_SERVICE_JWT_SECRET: local-dev-secret-key-for-user-service-jwt-256-bit
+      USER_SERVICE_JWT_ACCESS_EXPIRATION: 30m
+      USER_SERVICE_JWT_REFRESH_EXPIRATION: 30d
     ports:
       - "8080:8080"
 

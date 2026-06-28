@@ -7,7 +7,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
-import ru.privalov.dto.ExistsRequest;
+import ru.privalov.dto.UsersExistsRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -24,9 +24,9 @@ public class UserServiceClient {
 
     public Map<UUID, Boolean> existsByUserIds(List<UUID> userIds) {
         return restTemplate.exchange(
-                userServiceUrl + "/api/external/users/exists",
+                userServiceUrl + "/api/internal/users/exists",
                 HttpMethod.POST,
-                new HttpEntity<>(new ExistsRequest(userIds)),
+                new HttpEntity<>(new UsersExistsRequest(userIds)),
                 new ParameterizedTypeReference<Map<UUID, Boolean>>() {
                 }
         ).getBody();
