@@ -1,5 +1,7 @@
 package ru.privalov.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -15,6 +17,7 @@ import ru.privalov.messaging.StoreMessageCommand;
 
 import java.io.IOException;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -25,6 +28,7 @@ import java.util.UUID;
 public class MessagingService {
 
     private final RabbitTemplate rabbitTemplate;
+    private final ObjectMapper objectMapper;
     private final ConnectionClient connectionClient;
     private final UserServiceClient userServiceClient;
     private final MessageSessionRegistry messageSessionRegistry;
@@ -41,51 +45,59 @@ public class MessagingService {
     public void processIncoming(UUID senderId, IncomingMessageRequest request) {
         validate(senderId, request);
 
-        Map<UUID, Boolean> existsByUserIds = userServiceClient.existsByUserIds(request.recipientIds());
+        Map<UUID, Boolean> existsByUserIds = Optional
+                .ofNullable(userServiceClient.existsByUserIds(request.recipientIds()))
+                .orElse(Collections.emptyMap());
 
         Instant sentAt = Instant.now();
-        UUID messageId = UUID.randomUUID();
 
-        existsByUserIds.entrySet().stream()
-                .peek(entry -> {
-                    if (!entry.getValue()) {
-                        log.warn("Пользователь с id={} не найден, сообщение доставлено не будет", entry.getKey());
-                    }
-                })
-                .filter(Map.Entry::getValue)
-                .forEach(entry -> {
-                    rabbitTemplate.convertAndSend(historyExchange, historyRoutingKey, new StoreMessageCommand(
-                            messageId,
-                            senderId,
-                            entry.getKey(),
-                            request.content(),
-                            sentAt
-                    ));
+        existsByUserIds.forEach((recipientId, exists) -> {
+            UUID messageId = UUID.randomUUID();
 
-                    ConnectionResponse connection = connectionClient.findConnection(entry.getKey());
-                    if (connection == null || !connection.online()) {
-                        log.debug("Пользователь с id={} offline. Сообщение сохранено в историю", entry.getKey());
-                        return;
-                    }
+            if (!exists) {
+                log.warn("User with id={} not found, message will not be delivered", recipientId);
+                return;
+            }
 
-                    Optional<WebSocketSession> clientWSSession = messageSessionRegistry.find(entry.getKey());
+            rabbitTemplate.convertAndSend(historyExchange, historyRoutingKey, new StoreMessageCommand(
+                    messageId,
+                    senderId,
+                    recipientId,
+                    request.content(),
+                    sentAt
+            ));
 
-                    if (clientWSSession.isPresent()) {
-                        try {
-                            clientWSSession.get().sendMessage(new TextMessage(request.content()));
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    } else {
-                        rabbitTemplate.convertAndSend(deliveryExchange, connection.replicaId(), new DeliveryCommand(
-                                messageId,
-                                senderId,
-                                entry.getKey(),
-                                request.content(),
-                                sentAt
-                        ));
-                    }
-                });
+            ConnectionResponse connection = connectionClient.findConnection(recipientId);
+            if (connection == null || !connection.online()) {
+                log.debug("User with id={} is offline. Message was stored in history", recipientId);
+                return;
+            }
+
+            DeliveryCommand deliveryCommand = new DeliveryCommand(
+                    messageId,
+                    senderId,
+                    recipientId,
+                    request.content(),
+                    sentAt
+            );
+            Optional<WebSocketSession> clientWSSession = messageSessionRegistry.find(recipientId);
+
+            if (clientWSSession.isPresent()) {
+                sendLocal(clientWSSession.get(), deliveryCommand);
+            } else {
+                rabbitTemplate.convertAndSend(deliveryExchange, connection.replicaId(), deliveryCommand);
+            }
+        });
+    }
+
+    private void sendLocal(WebSocketSession session, DeliveryCommand command) {
+        try {
+            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(command)));
+        } catch (JsonProcessingException exception) {
+            log.warn("Failed to serialize message {} for user {}", command.messageId(), command.recipientId(), exception);
+        } catch (IOException exception) {
+            log.warn("Failed to deliver message {} to user {}", command.messageId(), command.recipientId(), exception);
+        }
     }
 
     private void validate(UUID senderId, IncomingMessageRequest request) {
