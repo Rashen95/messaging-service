@@ -3,9 +3,11 @@ package ru.privalov.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import ru.privalov.dto.ExistsRequest;
 
 import java.util.List;
 import java.util.Map;
@@ -22,12 +24,11 @@ public class UserServiceClient {
 
     public Map<UUID, Boolean> existsByUserIds(List<UUID> userIds) {
         return restTemplate.exchange(
-                userServiceUrl + "/api/external/users/exists/{userIds}",
-                HttpMethod.GET,
-                null,
+                userServiceUrl + "/api/external/users/exists",
+                HttpMethod.POST,
+                new HttpEntity<>(new ExistsRequest(userIds)),
                 new ParameterizedTypeReference<Map<UUID, Boolean>>() {
-                },
-                userIds
+                }
         ).getBody();
     }
 }

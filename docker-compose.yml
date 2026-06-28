@@ -91,6 +91,8 @@ services:
       USER_SERVICE_DB_PASSWORD: postgres
       USER_SERVICE_JWT_SECRET: local-dev-secret-key-for-user-service-jwt-256-bit
       EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: http://discovery-server:8761/eureka/
+      USER_SERVICE_JWT_ACCESS_EXPIRATION: 30m
+      USER_SERVICE_JWT_REFRESH_EXPIRATION: 30d
     deploy:
       replicas: 2
 
