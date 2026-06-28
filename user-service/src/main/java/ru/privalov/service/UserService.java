@@ -13,6 +13,11 @@ import ru.privalov.dto.registration.UserRegistrationRequest;
 import ru.privalov.dto.registration.UserRegistrationResponse;
 import ru.privalov.exception.DuplicateUserException;
 import ru.privalov.exception.InvalidCredentialsException;
+import ru.privalov.jwt.JwtRefreshTokenPayload;
+import ru.privalov.jwt.JwtService;
+import ru.privalov.jwt.JwtTokenException;
+import ru.privalov.jwt.JwtTokenPair;
+import ru.privalov.jwt.JwtUserPayload;
 import ru.privalov.mapper.UserMapper;
 import ru.privalov.model.RefreshToken;
 import ru.privalov.model.User;
@@ -59,8 +64,12 @@ public class UserService {
             throw new InvalidCredentialsException(ErrorPatternConstants.INVALID_USERNAME_OR_PASSWORD);
         }
 
-        JwtResponse response = jwtService.createTokens(user);
-        JwtService.RefreshTokenPayload payload = jwtService.extractRefreshTokenPayload(response.refreshToken());
+        JwtTokenPair tokenPair = jwtService.createTokens(toJwtUserPayload(user));
+        JwtResponse response = JwtResponse.builder()
+                .accessToken(tokenPair.accessToken())
+                .refreshToken(tokenPair.refreshToken())
+                .build();
+        JwtRefreshTokenPayload payload = extractRefreshTokenPayload(response.refreshToken());
         saveRefreshToken(user, response.refreshToken(), payload.expiresAt());
 
         return response;
@@ -68,14 +77,16 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public AccessTokenResponse refresh(RefreshTokenRequest request) {
-        JwtService.RefreshTokenPayload payload = jwtService.extractRefreshTokenPayload(request.refreshToken());
+        JwtRefreshTokenPayload payload = extractRefreshTokenPayload(request.refreshToken());
         RefreshToken refreshToken = findActiveRefreshToken(request.refreshToken());
 
         if (!refreshToken.getUser().getUsername().equals(payload.username())) {
             throw new InvalidCredentialsException(ErrorPatternConstants.INVALID_REFRESH_TOKEN);
         }
 
-        return jwtService.createAccessToken(refreshToken.getUser());
+        return AccessTokenResponse.builder()
+                .accessToken(jwtService.createAccessToken(toJwtUserPayload(refreshToken.getUser())))
+                .build();
     }
 
     @Transactional(readOnly = true)
@@ -118,5 +129,21 @@ public class UserService {
         } catch (NoSuchAlgorithmException exception) {
             throw new IllegalStateException("SHA-256 algorithm is not available", exception);
         }
+    }
+
+    private JwtRefreshTokenPayload extractRefreshTokenPayload(String refreshToken) {
+        try {
+            return jwtService.extractRefreshTokenPayload(refreshToken);
+        } catch (JwtTokenException exception) {
+            throw new InvalidCredentialsException(ErrorPatternConstants.INVALID_REFRESH_TOKEN);
+        }
+    }
+
+    private JwtUserPayload toJwtUserPayload(User user) {
+        return new JwtUserPayload(
+                user.getId(),
+                user.getUsername(),
+                user.getEmail()
+        );
     }
 }

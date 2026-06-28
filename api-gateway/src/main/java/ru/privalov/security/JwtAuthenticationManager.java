@@ -6,7 +6,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-import ru.privalov.service.JwtService;
+import ru.privalov.jwt.JwtService;
 
 import java.util.UUID;
 
