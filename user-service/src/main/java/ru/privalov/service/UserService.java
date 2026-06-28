@@ -5,17 +5,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.privalov.constant.ErrorPatternConstants;
-import ru.privalov.dto.login.JwtResponse;
 import ru.privalov.dto.login.LoginRequest;
-import ru.privalov.dto.refresh.AccessTokenResponse;
+import ru.privalov.dto.login.LoginResponse;
 import ru.privalov.dto.refresh.RefreshTokenRequest;
+import ru.privalov.dto.refresh.RefreshTokenResponse;
 import ru.privalov.dto.registration.UserRegistrationRequest;
 import ru.privalov.dto.registration.UserRegistrationResponse;
 import ru.privalov.exception.DuplicateUserException;
 import ru.privalov.exception.InvalidCredentialsException;
 import ru.privalov.jwt.JwtRefreshTokenPayload;
 import ru.privalov.jwt.JwtService;
-import ru.privalov.jwt.JwtTokenException;
 import ru.privalov.jwt.JwtTokenPair;
 import ru.privalov.jwt.JwtUserPayload;
 import ru.privalov.mapper.UserMapper;
@@ -32,6 +31,7 @@ import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,7 +59,7 @@ public class UserService {
     }
 
     @Transactional
-    public JwtResponse login(LoginRequest request) {
+    public LoginResponse login(LoginRequest request) {
         User user = userRepository.findByUsername(userMapper.normalize(request.username()))
                 .orElseThrow(() -> new InvalidCredentialsException(ErrorPatternConstants.INVALID_USERNAME_OR_PASSWORD));
 
@@ -68,51 +68,51 @@ public class UserService {
         }
 
         JwtTokenPair tokenPair = jwtService.createTokens(toJwtUserPayload(user));
-        JwtResponse response = JwtResponse.builder()
+        LoginResponse response = LoginResponse.builder()
                 .accessToken(tokenPair.accessToken())
                 .refreshToken(tokenPair.refreshToken())
                 .build();
-        JwtRefreshTokenPayload payload = extractRefreshTokenPayload(response.refreshToken());
-        saveRefreshToken(user, response.refreshToken(), payload.expiresAt());
+        JwtRefreshTokenPayload payload = jwtService.extractRefreshTokenPayload(response.refreshToken());
+
+        refreshTokenRepository.save(
+                new RefreshToken(user, hashToken(response.refreshToken()), payload.expiresAt())
+        );
 
         return response;
     }
 
     @Transactional(readOnly = true)
-    public AccessTokenResponse refresh(RefreshTokenRequest request) {
-        JwtRefreshTokenPayload payload = extractRefreshTokenPayload(request.refreshToken());
+    public RefreshTokenResponse refresh(RefreshTokenRequest request) {
+        JwtRefreshTokenPayload payload = jwtService.extractRefreshTokenPayload(request.refreshToken());
         RefreshToken refreshToken = findActiveRefreshToken(request.refreshToken());
 
         if (!refreshToken.getUser().getUsername().equals(payload.username())) {
             throw new InvalidCredentialsException(ErrorPatternConstants.INVALID_REFRESH_TOKEN);
         }
 
-        return AccessTokenResponse.builder()
+        return RefreshTokenResponse.builder()
                 .accessToken(jwtService.createAccessToken(toJwtUserPayload(refreshToken.getUser())))
                 .build();
+    }
+
+    @Transactional
+    public void logoutUser(RefreshTokenRequest request) {
+        UUID userId = jwtService.extractUserIdFromRefreshToken(request.refreshToken());
+
+        if (userId == null) {
+            throw new InvalidCredentialsException(ErrorPatternConstants.INVALID_REFRESH_TOKEN);
+        }
+
+        List<RefreshToken> allByUserIdAndRevokedAtIsNullAndIsActive = refreshTokenRepository
+                .findAllByUserIdAndRevokedAtIsNullAndIsActive(userId, Instant.now());
+
+        allByUserIdAndRevokedAtIsNullAndIsActive.forEach(RefreshToken::revoke);
     }
 
     @Transactional(readOnly = true)
     public Map<UUID, Boolean> usersExists(List<UUID> userIds) {
         return userIds.stream()
-                .collect(Collectors.toMap(identity -> identity, userRepository::existsById));
-    }
-
-    @Transactional
-    public void logout(RefreshTokenRequest request) {
-        RefreshToken refreshToken = findActiveRefreshToken(request.refreshToken());
-        refreshToken.revoke();
-    }
-
-    private void saveRefreshToken(User user, String token, Instant expiresAt) {
-        refreshTokenRepository.save(
-                RefreshToken.builder()
-                        .user(user)
-                        .tokenHash(hashToken(token))
-                        .expiresAt(expiresAt)
-                        .createdAt(Instant.now())
-                        .build()
-        );
+                .collect(Collectors.toMap(Function.identity(), userRepository::existsById));
     }
 
     private RefreshToken findActiveRefreshToken(String token) {
@@ -120,7 +120,7 @@ public class UserService {
                 .orElseThrow(() -> new InvalidCredentialsException(ErrorPatternConstants.INVALID_REFRESH_TOKEN));
 
         if (!refreshToken.isActive()) {
-            throw new InvalidCredentialsException(ErrorPatternConstants.INVALID_REFRESH_TOKEN);
+            throw new InvalidCredentialsException(ErrorPatternConstants.EXPIRED_REFRESH_TOKEN);
         }
 
         return refreshToken;
@@ -132,14 +132,6 @@ public class UserService {
             return HexFormat.of().formatHex(digest.digest(token.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException exception) {
             throw new IllegalStateException("SHA-256 algorithm is not available", exception);
-        }
-    }
-
-    private JwtRefreshTokenPayload extractRefreshTokenPayload(String refreshToken) {
-        try {
-            return jwtService.extractRefreshTokenPayload(refreshToken);
-        } catch (JwtTokenException exception) {
-            throw new InvalidCredentialsException(ErrorPatternConstants.INVALID_REFRESH_TOKEN);
         }
     }
 

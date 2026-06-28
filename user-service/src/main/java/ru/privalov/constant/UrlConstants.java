@@ -6,6 +6,7 @@ import lombok.experimental.UtilityClass;
 public class UrlConstants {
     public final String API = "/api";
     public final String EXTERNAL = "/external";
+    public final String INTERNAL = "/internal";
     public final String USERS = "/users";
     public final String REGISTER = "/register";
     public final String LOGIN = "/login";

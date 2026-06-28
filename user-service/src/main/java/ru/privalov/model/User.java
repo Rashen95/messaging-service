@@ -7,7 +7,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -42,7 +41,6 @@ public class User {
     @Column(name = "birth_date")
     private LocalDate birthDate;
 
-    @Builder
     public User(String username, String email, String passwordHash, String firstName, String lastName, LocalDate birthDate) {
         this.username = username;
         this.email = email;

@@ -1,4 +1,4 @@
-package ru.privalov.exception;
+package ru.privalov.exception.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -8,6 +8,9 @@ import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.privalov.exception.DuplicateUserException;
+import ru.privalov.exception.InvalidCredentialsException;
+import ru.privalov.jwt.JwtTokenException;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -27,6 +30,12 @@ public class ApiExceptionHandler {
 
     @ExceptionHandler(InvalidCredentialsException.class)
     public ProblemDetail handleInvalidCredentials(InvalidCredentialsException exception) {
+        log.warn(exception.getMessage());
+        return problem(HttpStatus.UNAUTHORIZED, exception.getMessage());
+    }
+
+    @ExceptionHandler(JwtTokenException.class)
+    public ProblemDetail handleJwtTokenException(JwtTokenException exception) {
         log.warn(exception.getMessage());
         return problem(HttpStatus.UNAUTHORIZED, exception.getMessage());
     }

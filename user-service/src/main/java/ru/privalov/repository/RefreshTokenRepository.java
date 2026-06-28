@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import ru.privalov.model.RefreshToken;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -14,6 +15,15 @@ import java.util.UUID;
 public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID> {
 
     Optional<RefreshToken> findByTokenHashAndRevokedAtIsNull(String tokenHash);
+
+    @Query("""
+            select token
+            from RefreshToken token
+            where token.user.id = :userId
+            and token.revokedAt is null
+            and token.expiresAt > :now
+            """)
+    List<RefreshToken> findAllByUserIdAndRevokedAtIsNullAndIsActive(UUID userId, Instant now);
 
     @Modifying
     @Query("""

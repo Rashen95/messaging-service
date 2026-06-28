@@ -10,17 +10,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.privalov.constant.UrlConstants;
-import ru.privalov.dto.exists.ExistsRequest;
-import ru.privalov.dto.login.JwtResponse;
 import ru.privalov.dto.login.LoginRequest;
-import ru.privalov.dto.refresh.AccessTokenResponse;
+import ru.privalov.dto.login.LoginResponse;
 import ru.privalov.dto.refresh.RefreshTokenRequest;
+import ru.privalov.dto.refresh.RefreshTokenResponse;
 import ru.privalov.dto.registration.UserRegistrationRequest;
 import ru.privalov.dto.registration.UserRegistrationResponse;
 import ru.privalov.service.UserService;
-
-import java.util.Map;
-import java.util.UUID;
 
 @Slf4j
 @RestController
@@ -35,23 +31,23 @@ public class UserExternalController {
     public UserRegistrationResponse register(@Valid @RequestBody UserRegistrationRequest request) {
         log.debug("Запрос на регистрацию пользователя: {}", request);
         UserRegistrationResponse response = userService.register(request);
-        log.debug("Ответ по регистрации пользователя: {}", response);
+        log.debug("Ответ на регистрацию пользователя: {}", response);
         return response;
     }
 
     @PostMapping(UrlConstants.LOGIN)
-    public JwtResponse login(@Valid @RequestBody LoginRequest request) {
+    public LoginResponse login(@Valid @RequestBody LoginRequest request) {
         log.debug("Запрос на логин пользователя: {}", request);
-        JwtResponse response = userService.login(request);
+        LoginResponse response = userService.login(request);
         log.debug("Ответ на логин пользователя: {}", response);
         return response;
     }
 
     @PostMapping(UrlConstants.REFRESH)
-    public AccessTokenResponse refresh(@Valid @RequestBody RefreshTokenRequest request) {
+    public RefreshTokenResponse refresh(@Valid @RequestBody RefreshTokenRequest request) {
         log.debug("Запрос на обновление accessToken: {}", request);
-        AccessTokenResponse response = userService.refresh(request);
-        log.debug("Обновленный acсessToken: {}", response);
+        RefreshTokenResponse response = userService.refresh(request);
+        log.debug("Ответ на обновление accessToken: {}", response);
         return response;
     }
 
@@ -59,14 +55,6 @@ public class UserExternalController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void logout(@Valid @RequestBody RefreshTokenRequest request) {
         log.debug("Запрос на logout: {}", request);
-        userService.logout(request);
-    }
-
-    @PostMapping(UrlConstants.EXISTS)
-    public Map<UUID, Boolean> usersExists(@Valid @RequestBody ExistsRequest request) {
-        log.debug("Запрос на проверку наличия пользователей: {}", request);
-        Map<UUID, Boolean> isUserExists = userService.usersExists(request.recipientIds());
-        log.debug("Факт наличия пользователей {}", isUserExists);
-        return isUserExists;
+        userService.logoutUser(request);
     }
 }

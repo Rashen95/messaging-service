@@ -3,7 +3,7 @@ package ru.privalov.dto.refresh;
 import lombok.Builder;
 
 @Builder
-public record AccessTokenResponse(
+public record RefreshTokenResponse(
         String accessToken
 ) {
 }

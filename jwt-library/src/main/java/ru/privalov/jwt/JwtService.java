@@ -28,8 +28,8 @@ public class JwtService {
 
     public JwtService(
             @Value("${jwt.secret}") String secret,
-            @Value("${jwt.access-expiration:5m}") Duration accessExpiration,
-            @Value("${jwt.refresh-expiration:30d}") Duration refreshExpiration
+            @Value("${jwt.access-expiration}") Duration accessExpiration,
+            @Value("${jwt.refresh-expiration}") Duration refreshExpiration
     ) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.accessExpiration = accessExpiration;
@@ -49,6 +49,16 @@ public class JwtService {
 
     public UUID extractUserId(String accessToken) {
         return extractAccessTokenPayload(accessToken).userId();
+    }
+
+    public UUID extractUserIdFromRefreshToken(String refreshToken) {
+        Claims claims = parseClaims(refreshToken);
+
+        if (!REFRESH_TOKEN_TYPE.equals(claims.get(TOKEN_TYPE_CLAIM, String.class))) {
+            throw new JwtTokenException("refresh token is required");
+        }
+
+        return claims.get(USER_ID_CLAIM, UUID.class);
     }
 
     public JwtAccessTokenPayload extractAccessTokenPayload(String accessToken) {
