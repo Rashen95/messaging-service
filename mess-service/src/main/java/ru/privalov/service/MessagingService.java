@@ -83,10 +83,10 @@ public class MessagingService {
             Optional<WebSocketSession> clientWSSession = messageSessionRegistry.find(recipientId);
 
             if (clientWSSession.isPresent()) {
-                log.debug("sendLocal");
+                log.debug("sendLocal {}", deliveryCommand);
                 sendLocal(clientWSSession.get(), deliveryCommand);
             } else {
-                log.debug("sendRemote to {}", connection.replicaId());
+                log.debug("sendRemote {} to replicaId={}", deliveryCommand, connection.replicaId());
                 rabbitTemplate.convertAndSend(deliveryExchange, connection.replicaId(), deliveryCommand);
             }
         });

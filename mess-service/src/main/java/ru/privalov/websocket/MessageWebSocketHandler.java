@@ -3,6 +3,7 @@ package ru.privalov.websocket;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -43,7 +44,7 @@ public class MessageWebSocketHandler extends TextWebSocketHandler {
     private String presenceRoutingKey;
 
     @Override
-    public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+    public void afterConnectionEstablished(@NonNull WebSocketSession session) {
         UUID userId = extractUserId(session);
 
         messageSessionRegistry.register(userId, session);
@@ -52,7 +53,7 @@ public class MessageWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    protected void handleTextMessage(@NonNull WebSocketSession session, @NonNull TextMessage message) throws Exception {
         try {
             UUID senderId = extractUserId(session);
             IncomingMessageRequest request = objectMapper.readValue(message.getPayload(), IncomingMessageRequest.class);
@@ -64,7 +65,7 @@ public class MessageWebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
+    public void afterConnectionClosed(WebSocketSession session, @NonNull CloseStatus status) {
         UUID userId = (UUID) session.getAttributes().get(USER_ID_ATTRIBUTE);
         if (userId == null) {
             return;
